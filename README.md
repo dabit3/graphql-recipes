@@ -50,7 +50,7 @@ amplify add auth
 amplify add api
 ```
 
-Use the following schema:
+Use the following GraphQL schema:
 
 ```graphql
 type User 
@@ -58,11 +58,17 @@ type User
   @auth(rules: [{ allow: owner, ownerField: "id", queries: null }]) {
   id: ID!
   username: String!
-  avatar: String
+  avatar: S3Object
   conversations: [ConvoLink] @connection(name: "UserLinks")
   messages: [Message] @connection(name: "UserMessages")
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type S3Object {
+  bucket: String!
+  region: String!
+  key: String!
 }
 
 type Conversation
@@ -77,8 +83,8 @@ type Conversation
   associated: [ConvoLink] @connection(name: "AssociatedLinks")
   name: String!
   members: [String!]!
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Message 
@@ -90,8 +96,8 @@ type Message
   content: String!
   conversation: Conversation! @connection(name: "ConvoMsgs")
   messageConversationId: ID!
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type ConvoLink 
@@ -105,8 +111,8 @@ type ConvoLink
   convoLinkUserId: ID
   conversation: Conversation! @connection(name: "AssociatedLinks")
   convoLinkConversationId: ID!
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Subscription {
