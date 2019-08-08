@@ -1,5 +1,7 @@
 # GraphQL App Recipes
 
+> This repo is an evolving work in progress. As I add more recipes, I will break these out into individual full-stack applications including the front end and adding additional examples. If you have any ideas, please feel free to either contribute or submit an issue!
+
 This repo goes along with the tutorial on building AWS AppSync APIs using the Amplify GraphQL Transform library.
 
 To learn more about GraphQL Transform library, check out [the documentation](https://aws-amplify.github.io/docs/cli-toolchain/graphql?sdk=js).
