@@ -68,7 +68,7 @@ Use the following schema
 type Event
   @model
   @key(name: "queryName", fields: ["queryName", "time"], queryField: "eventsByDate")
- @auth(rules: [{allow: groups, groups: ["Admin"], queries: null}])
+  @auth(rules: [{allow: groups, groups: ["Admin"], queries: null}])
   {
     id: ID!
     name: String!
