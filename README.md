@@ -50,7 +50,13 @@ To deploy this app, use the following steps:
 amplify init
 ```
 
-2. Add the GraphQL API
+2. Add authentication
+
+```sh
+amplify add auth
+```
+
+3. Add the GraphQL API
 
 ```sh
 amplify add api
@@ -72,7 +78,7 @@ type Event
 }
 ```
 
-3. Deploy the resources
+4. Deploy the resources
 
 ```sh
 amplify push
