@@ -32,6 +32,13 @@ type Todo @model {
 }
 ```
 
+3. Deploy the resources
+
+```sh
+amplify push
+```
+
+
 ## Chat App
 
 > Click [here](https://github.com/aws-samples/aws-appsync-chat) to AWS AppSync Chat, a completed full-stack version of this app built with React.
@@ -118,6 +125,12 @@ type Subscription {
   onCreateMessage(messageConversationId: ID!): Message
     @aws_subscribe(mutations: ["createMessage"])
 }
+```
+
+4. Deploy the resources
+
+```sh
+amplify push
 ```
 
 ## E-commerce App
