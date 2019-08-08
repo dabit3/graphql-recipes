@@ -38,6 +38,43 @@ type Todo @model {
 amplify push
 ```
 
+## Event App
+
+To deploy this app, use the following steps:
+
+1. Create the Amplify project in your app
+
+```sh
+amplify init
+```
+
+2. Add the GraphQL API
+
+```sh
+amplify add api
+```
+
+Use the following schema
+
+```graphql
+type Event
+  @model
+  @key(name: "queryName", fields: ["queryName", "time"], queryField: "eventsByDate")
+ @auth(rules: [{allow: groups, groups: ["Admin"], queries: null}])
+  {
+    id: ID!
+    name: String!
+    description: String
+    time: String!
+    queryName: String!
+}
+```
+
+3. Deploy the resources
+
+```sh
+amplify push
+```
 
 ## Chat App
 
