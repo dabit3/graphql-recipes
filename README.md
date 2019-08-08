@@ -86,7 +86,7 @@ amplify push
 
 ## Chat App
 
-> Click [here](https://github.com/aws-samples/aws-appsync-chat) to AWS AppSync Chat, a completed full-stack version of this app built with React.
+> Click [here](https://github.com/aws-samples/aws-appsync-chat) to view AWS AppSync Chat, a completed full-stack version of this app built with React.
 
 To deploy this app, use the following steps:
 
