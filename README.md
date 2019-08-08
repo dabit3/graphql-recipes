@@ -526,6 +526,88 @@ amplify add storage
 amplify push
 ```
 
+## Conference App
+
+To deploy this app, use the following steps:
+
+1. Create the Amplify project in your app
+
+```sh
+amplify init
+```
+
+2. Add authentication
+
+```sh
+amplify add auth
+```
+
+3. Add the GraphQL API
+
+```sh
+amplify add api
+```
+
+Use the following GraphQL Schema:
+
+```graphql
+type Talk @model
+  @auth(rules: [{allow: groups, groups: ["Admin"], queries: null}])
+  {
+  id: ID!
+  name: String!
+  speakerName: String!
+  speakerBio: String!
+  time: String
+  timeStamp: String
+  date: String
+  location: String
+  summary: String!
+  twitter: String
+  github: String
+  speakerAvatar: String
+  comments: [Comment] @connection(name: "TalkComments")
+}
+
+type Comment @model {
+  id: ID!
+  talkId: ID
+  talk: Talk @connection(sortField: "createdAt", name: "TalkComments", keyField: "talkId")
+  message: String
+  createdAt: String
+  createdBy: String
+  deviceId: ID
+}
+
+type Report @model {
+  id: ID!
+  commentId: ID!
+  comment: String!
+  talkTitle: String!
+  deviceId: ID
+}
+
+type ModelCommentConnection {
+  items: [Comment]
+  nextToken: String
+}
+
+type Query {
+  listCommentsByTalkId(talkId: ID!): ModelCommentConnection
+}
+
+type Subscription {
+  onCreateCommentWithId(talkId: ID!): Comment
+		@aws_subscribe(mutations: ["createComment"])
+}
+```
+
+4. Deploy the resources
+
+```sh
+amplify push
+```
+
 ---
 
 To learn more about uploading images in a GraphQL application with Amplify and AppSync, check out my tutorial [How to Manage Image & File Uploads & Downloads with AWS AppSync & AWS Amplify](https://dev.to/dabit3/graphql-tutorial-how-to-manage-image-file-uploads-downloads-with-aws-appsync-aws-amplify-hga)
