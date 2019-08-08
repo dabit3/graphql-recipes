@@ -309,30 +309,10 @@ type Comment @model @auth(rules: [{allow: owner, operations: [create], queries: 
   post: Post @connection
 }
 
-type Vote @model
-  @key(name: "byUser", fields: ["createdBy", "createdAt"], queryField: "votesByUser")
-  {
-  id: ID!
-  postId: ID!
-  createdBy: ID!
-  createdAt: String!
-  vote: VoteType
-}
-
 type S3Object {
   bucket: String!
   region: String!
   key: String!
-}
-
-input VoteInput {
-	type: VoteType!
-	id: ID!
-}
-
-enum VoteType {
-	up
-	down
 }
 ```
 
