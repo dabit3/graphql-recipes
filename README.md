@@ -284,29 +284,63 @@ Use the following GraphQL schema:
 type User 
   @model 
   @auth(rules: [
-    { allow: owner, ownerField: "id", operations: [create, update, delete] }
+    { allow: owner, ownerField: "id", queries: null }
     ]) {
   id: ID!
   username: String!
-  posts: [Post] @connection
-	createdAt: String
-	updatedAt: String
+  avatar: S3Object
+  conversations: [ConvoLink] @connection(name: "UserLinks")
+  messages: [Message] @connection(name: "UserMessages")
+    createdAt: String
+    updatedAt: String
 }
 
-type Post @model @auth(rules: [{allow: owner, operations: [create, delete], operations: [create, update, delete]}]) {
+type Conversation
+  @model(subscriptions: null)
+  @auth(rules: [{ allow: owner, ownerField: "members" }]) {
   id: ID!
-  postContent: String
-  postImage: S3Object
-  comments: [Comment] @connection
-  votes: Int
+  messages: [Message] @connection(name: "ConvoMsgs", sortField: "createdAt")
+  associated: [ConvoLink] @connection(name: "AssociatedLinks")
+  name: String!
+  members: [String!]!
+    createdAt: String
+    updatedAt: String
 }
 
-type Comment @model @auth(rules: [{allow: owner, operations: [create], operations: [create, update, delete]}]) {
+type Message 
+  @model(subscriptions: null, queries: null) 
+  @auth(rules: [{ allow: owner, ownerField: "authorId" }]) {
   id: ID!
-  text: String!
-  author: String!
-  votes: Int
-  post: Post @connection
+  author: User @connection(name: "UserMessages", keyField: "authorId")
+  authorId: String
+  content: String!
+  image: S3Object
+  conversation: Conversation! @connection(name: "ConvoMsgs", sortField: "createdAt")
+  messageConversationId: ID!
+    createdAt: String
+    updatedAt: String
+}
+
+type ConvoLink 
+  @model(
+    mutations: { create: "createConvoLink", update: "updateConvoLink" }
+    queries: null
+    subscriptions: null
+  ) {
+  id: ID!
+  user: User! @connection(name: "UserLinks")
+  convoLinkUserId: ID
+  conversation: Conversation! @connection(name: "AssociatedLinks")
+  convoLinkConversationId: ID!
+    createdAt: String
+    updatedAt: String
+}
+
+type Subscription {
+  onCreateConvoLink(convoLinkUserId: ID!): ConvoLink
+    @aws_subscribe(mutations: ["createConvoLink"])
+  onCreateMessage(messageConversationId: ID!): Message
+    @aws_subscribe(mutations: ["createMessage"])
 }
 
 type S3Object {
