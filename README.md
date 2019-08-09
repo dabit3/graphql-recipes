@@ -234,7 +234,6 @@ type Customer
   address: String
 }
 
-<<<<<<< HEAD
 type Product
   @model
   @auth(
@@ -242,12 +241,6 @@ type Product
       { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
     ]
   ) {
-=======
-type Product @model
-  @auth(rules: [
-    {allow: groups, groups: ["Admin"], operations: [create, update, delete] }
-  ]) {
->>>>>>> d3244c86bef5a56477a25e4b9cf335b87cfbcdba
   id: ID!
   name: String!
   description: String
@@ -261,14 +254,9 @@ type S3Object {
   key: String!
 }
 
-<<<<<<< HEAD
-type Order @model @auth(rules: [{ allow: owner }]) {
-=======
-type Order @model
-  @auth(rules: [
-   {allow: owner}, {allow: groups, groups: ["Admin"]}
-  ]) {
->>>>>>> d3244c86bef5a56477a25e4b9cf335b87cfbcdba
+type Order
+  @model
+  @auth(rules: [{ allow: owner }, { allow: groups, groups: ["Admin"] }]) {
   id: ID!
   customer: Customer @connection
   total: Float!
@@ -448,10 +436,13 @@ type User
   updatedAt: String
 }
 
-type Post @model 
-  @auth(rules: [
-    { allow: owner, ownerField: "id", operations: [create, update, delete] }
-  ]){
+type Post
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "id", operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   postContent: String
   postImage: S3Object
@@ -573,9 +564,9 @@ type Talk
   comments: [Comment] @connection(name: "TalkComments")
 }
 
-type Comment @model
-  @auth(rules: [{allow: owner, operations: [create, update, delete]}])
-  {
+type Comment
+  @model
+  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
   id: ID!
   talkId: ID
   talk: Talk
@@ -590,12 +581,14 @@ type Comment @model
   deviceId: ID
 }
 
-type Report @model
-  @auth(rules: [
-    {allow: owner, operations: [create, update, delete]},
-    {allow: admin}
-    ])
-  {
+type Report
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete] }
+      { allow: admin }
+    ]
+  ) {
   id: ID!
   commentId: ID!
   comment: String!
