@@ -68,7 +68,7 @@ Use the following schema
 type Event
   @model
   @key(name: "queryName", fields: ["queryName", "time"], queryField: "eventsByDate")
-  @auth(rules: [{allow: groups, groups: ["Admin"], queries: null}])
+  @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete]}])
   {
     id: ID!
     name: String!
@@ -114,7 +114,7 @@ Use the following GraphQL Schema:
 type User 
   @model 
   @auth(rules: [
-    { allow: owner, ownerField: "id", queries: null }
+    { allow: owner, ownerField: "id", operations: [create, update, delete] }
     ]) {
   id: ID!
   username: String!
@@ -216,7 +216,7 @@ type Customer
   address: String
 }
 
-type Product @model @auth(rules: [{allow: groups, groups: ["Admin"], queries: null }]) {
+type Product @model @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete] }]) {
   id: ID!
   name: String!
   description: String
@@ -284,7 +284,7 @@ Use the following GraphQL schema:
 type User 
   @model 
   @auth(rules: [
-    { allow: owner, ownerField: "id", queries: null }
+    { allow: owner, ownerField: "id", operations: [create, update, delete] }
     ]) {
   id: ID!
   username: String!
@@ -293,7 +293,7 @@ type User
 	updatedAt: String
 }
 
-type Post @model @auth(rules: [{allow: owner, operations: [create, delete], queries: null}]) {
+type Post @model @auth(rules: [{allow: owner, operations: [create, delete], operations: [create, update, delete]}]) {
   id: ID!
   postContent: String
   postImage: S3Object
@@ -301,7 +301,7 @@ type Post @model @auth(rules: [{allow: owner, operations: [create, delete], quer
   votes: Int
 }
 
-type Comment @model @auth(rules: [{allow: owner, operations: [create], queries: null}]) {
+type Comment @model @auth(rules: [{allow: owner, operations: [create], operations: [create, update, delete]}]) {
   id: ID!
   text: String!
   author: String!
@@ -362,7 +362,7 @@ Use the following GraphQL Schema:
 type User 
   @model 
   @auth(rules: [
-    { allow: owner, ownerField: "id", queries: null }
+    { allow: owner, ownerField: "id", operations: [create, update, delete] }
     ]) {
   id: ID!
   username: String!
@@ -379,7 +379,7 @@ type Post @model {
   votes: Int
 }
 
-type Comment @model @auth(rules: [{allow: owner, operations: [create], queries: null}]) {
+type Comment @model @auth(rules: [{allow: owner, operations: [create], operations: [create, update, delete]}]) {
   id: ID!
   text: String!
   author: String!
@@ -460,7 +460,7 @@ Use the following GraphQL Schema:
 type User 
   @model 
   @auth(rules: [
-    { allow: owner, ownerField: "id", queries: null }
+    { allow: owner, ownerField: "id", operations: [create, update, delete] }
     ]) {
   id: ID!
   username: String!
@@ -469,14 +469,14 @@ type User
 	updatedAt: String
 }
 
-type Post @model @auth(rules: [{allow: owner, operations: [create, update, delete], queries: null}]) {
+type Post @model @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
   id: ID!
   postImage: S3Object!
   comments: [Comment] @connection
   likes: Int
 }
 
-type Comment @model @auth(rules: [{allow: owner, operations: [create], queries: null}]) {
+type Comment @model @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
   id: ID!
   text: String!
   author: String!
@@ -552,7 +552,7 @@ Use the following GraphQL Schema:
 
 ```graphql
 type Talk @model
-  @auth(rules: [{allow: groups, groups: ["Admin"], queries: null}])
+  @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete]}])
   {
   id: ID!
   name: String!
