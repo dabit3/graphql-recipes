@@ -16,6 +16,7 @@ To learn more about building full stack serverless applications with GraphQL and
 6. [Reddit Clone](https://github.com/dabit3/graphql-recipes#user-content-reddit-clone)
 7. [Conference App](https://github.com/dabit3/graphql-recipes#user-content-conference-app)
 8. [Instagram Clone](https://github.com/dabit3/graphql-recipes#instagram-clone)
+9. [Giphy Clone](https://github.com/dabit3/graphql-recipes#giphy-clone)
 
 ## Todo App
 
@@ -654,3 +655,108 @@ amplify push
 ---
 
 To learn more about uploading images in a GraphQL application with Amplify and AppSync, check out my tutorial [How to Manage Image & File Uploads & Downloads with AWS AppSync & AWS Amplify](https://dev.to/dabit3/graphql-tutorial-how-to-manage-image-file-uploads-downloads-with-aws-appsync-aws-amplify-hga)
+
+## Giphy Clone
+
+To deploy this app, use the following steps:
+
+1. Create the Amplify project in your app
+
+```sh
+amplify init
+```
+
+2. Add a lambda function
+
+```sh
+amplify add function
+```
+
+3. Enter the following when prompted
+   ![lambdafunction](screenshots/giphy-clone/create-lambda-function.png)
+
+4. From the root of your project, change into your function's source directory
+
+```sh
+cd amplify/backend/function/giphyfunction/src
+```
+
+5. Install [axios](https://www.npmjs.com/package/axios) and [dotenv](https://www.npmjs.com/package/dotenv)
+
+```sh
+npm install axios && npm install -D dotenv
+```
+
+6. Update the contents of your functions `index.js` file
+
+```js
+const axios = require("axios");
+const dotenv = require("dotenv");
+dotenv.config();
+
+exports.handler = (event, _, callback) => {
+  const { GIPHY_API_KEY } = process.env;
+  let apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=hello`;
+
+  if (event.arguments) {
+    const { searchTerm = "hi", limit = 25 } = event.arguments;
+    apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${searchTerm}&limit=${limit}`;
+  }
+
+  axios
+    .get(apiUrl)
+    .then(response => callback(null, response.data.data))
+    .catch(err => callback(err));
+};
+
+```
+
+7. Login to [Giphy's Developer portal](https://developers.giphy.com/dashboard/) and create an app to get an API Key.
+   
+8. Back in the functions `src` directory, create a `.env` file and add in your API Key as a secret. 
+
+```sh
+GIPHY_API_KEY=<YOUR_API_KEY>
+```
+
+**Your .env file should NOT be committed to Github**
+
+9. Add the GraphQL API
+
+```sh
+amplify add api
+```
+
+Use the following GraphQL Schema:
+
+```graphql
+type Gif {
+  id: ID!
+  slug: String!
+  description: String!
+  images: GifImage!
+}
+
+type GifImage {
+  original: GifAttributes!
+  fixed_width: GifAttributes!
+}
+
+type GifAttributes {
+  url: String!
+  width: String!
+  height: String!
+}
+
+type Query {
+  getGifs(searchTerm: String, limit: Int): [Gif]
+    @function(name: "giphyfunction-${env}")
+}
+
+```
+
+10. Deploy the Resources
+
+```sh
+amplify push
+```
