@@ -225,7 +225,10 @@ type Customer
   address: String
 }
 
-type Product @model @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete] }]) {
+type Product @model
+  @auth(rules: [
+    {allow: groups, groups: ["Admin"], operations: [create, update, delete] }
+  ]) {
   id: ID!
   name: String!
   description: String
@@ -239,7 +242,10 @@ type S3Object {
   key: String!
 }
 
-type Order @model @auth(rules: [{allow: owner}]) {
+type Order @model
+  @auth(rules: [
+   {allow: owner}, {allow: groups, groups: ["Admin"]}
+  ]) {
   id: ID!
   customer: Customer @connection
   total: Float!
