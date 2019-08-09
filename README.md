@@ -77,14 +77,21 @@ Use the following schema
 ```graphql
 type Event
   @model
-  @key(name: "queryName", fields: ["queryName", "time"], queryField: "eventsByDate")
-  @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete]}])
-  {
-    id: ID!
-    name: String!
-    description: String
-    time: String!
-    queryName: String!
+  @key(
+    name: "queryName"
+    fields: ["queryName", "time"]
+    queryField: "eventsByDate"
+  )
+  @auth(
+    rules: [
+      { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  description: String
+  time: String!
+  queryName: String!
 }
 ```
 
@@ -121,17 +128,19 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type User 
-  @model 
-  @auth(rules: [
-    { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]) {
+type User
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "id", operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   username: String!
   conversations: [ConvoLink] @connection(name: "UserLinks")
   messages: [Message] @connection(name: "UserMessages")
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Conversation
@@ -142,24 +151,25 @@ type Conversation
   associated: [ConvoLink] @connection(name: "AssociatedLinks")
   name: String!
   members: [String!]!
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
-type Message 
-  @model(subscriptions: null, queries: null) 
+type Message
+  @model(subscriptions: null, queries: null)
   @auth(rules: [{ allow: owner, ownerField: "authorId" }]) {
   id: ID!
   author: User @connection(name: "UserMessages", keyField: "authorId")
   authorId: String
   content: String!
-  conversation: Conversation! @connection(name: "ConvoMsgs", sortField: "createdAt")
+  conversation: Conversation!
+    @connection(name: "ConvoMsgs", sortField: "createdAt")
   messageConversationId: ID!
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
-type ConvoLink 
+type ConvoLink
   @model(
     mutations: { create: "createConvoLink", update: "updateConvoLink" }
     queries: null
@@ -170,8 +180,8 @@ type ConvoLink
   convoLinkUserId: ID
   conversation: Conversation! @connection(name: "AssociatedLinks")
   convoLinkConversationId: ID!
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Subscription {
@@ -217,16 +227,20 @@ Use the following GraphQL schema:
 
 type Customer
   @model
-  @auth(rules: [
-    { allow: owner }, { allow: groups, groups: ["Admin"]}
-  ]) {
+  @auth(rules: [{ allow: owner }, { allow: groups, groups: ["Admin"] }]) {
   id: ID!
   name: String!
   email: String!
   address: String
 }
 
-type Product @model @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete] }]) {
+type Product
+  @model
+  @auth(
+    rules: [
+      { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   name: String!
   description: String
@@ -240,7 +254,7 @@ type S3Object {
   key: String!
 }
 
-type Order @model @auth(rules: [{allow: owner}]) {
+type Order @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   customer: Customer @connection
   total: Float!
@@ -291,18 +305,20 @@ amplify add api
 Use the following GraphQL schema:
 
 ```graphql
-type User 
-  @model 
-  @auth(rules: [
-    { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]) {
+type User
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "id", operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   username: String!
   avatar: S3Object
   conversations: [ConvoLink] @connection(name: "UserLinks")
   messages: [Message] @connection(name: "UserMessages")
-    createdAt: String
-    updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Conversation
@@ -313,25 +329,26 @@ type Conversation
   associated: [ConvoLink] @connection(name: "AssociatedLinks")
   name: String!
   members: [String!]!
-    createdAt: String
-    updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
-type Message 
-  @model(subscriptions: null, queries: null) 
+type Message
+  @model(subscriptions: null, queries: null)
   @auth(rules: [{ allow: owner, ownerField: "authorId" }]) {
   id: ID!
   author: User @connection(name: "UserMessages", keyField: "authorId")
   authorId: String
   content: String!
   image: S3Object
-  conversation: Conversation! @connection(name: "ConvoMsgs", sortField: "createdAt")
+  conversation: Conversation!
+    @connection(name: "ConvoMsgs", sortField: "createdAt")
   messageConversationId: ID!
-    createdAt: String
-    updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
-type ConvoLink 
+type ConvoLink
   @model(
     mutations: { create: "createConvoLink", update: "updateConvoLink" }
     queries: null
@@ -342,8 +359,8 @@ type ConvoLink
   convoLinkUserId: ID
   conversation: Conversation! @connection(name: "AssociatedLinks")
   convoLinkConversationId: ID!
-    createdAt: String
-    updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Subscription {
@@ -403,16 +420,18 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type User 
-  @model 
-  @auth(rules: [
-    { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]) {
+type User
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "id", operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   username: String!
   posts: [Post] @connection
-	createdAt: String
-	updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Post @model {
@@ -423,7 +442,17 @@ type Post @model {
   votes: Int
 }
 
-type Comment @model @auth(rules: [{allow: owner, operations: [create], operations: [create, update, delete]}]) {
+type Comment
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create]
+        operations: [create, update, delete]
+      }
+    ]
+  ) {
   id: ID!
   text: String!
   author: String!
@@ -431,9 +460,13 @@ type Comment @model @auth(rules: [{allow: owner, operations: [create], operation
   post: Post @connection
 }
 
-type Vote @model
-  @key(name: "byUser", fields: ["createdBy", "createdAt"], queryField: "votesByUser")
-  {
+type Vote
+  @model
+  @key(
+    name: "byUser"
+    fields: ["createdBy", "createdAt"]
+    queryField: "votesByUser"
+  ) {
   id: ID!
   postId: ID!
   createdBy: ID!
@@ -448,13 +481,13 @@ type S3Object {
 }
 
 input VoteInput {
-	type: VoteType!
-	id: ID!
+  type: VoteType!
+  id: ID!
 }
 
 enum VoteType {
-	up
-	down
+  up
+  down
 }
 ```
 
@@ -501,9 +534,13 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type Talk @model
-  @auth(rules: [{allow: groups, groups: ["Admin"], operations: [create, update, delete]}])
-  {
+type Talk
+  @model
+  @auth(
+    rules: [
+      { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   name: String!
   speakerName: String!
@@ -522,7 +559,12 @@ type Talk @model
 type Comment @model {
   id: ID!
   talkId: ID
-  talk: Talk @connection(sortField: "createdAt", name: "TalkComments", keyField: "talkId")
+  talk: Talk
+    @connection(
+      sortField: "createdAt"
+      name: "TalkComments"
+      keyField: "talkId"
+    )
   message: String
   createdAt: String
   createdBy: String
@@ -548,7 +590,7 @@ type Query {
 
 type Subscription {
   onCreateCommentWithId(talkId: ID!): Comment
-		@aws_subscribe(mutations: ["createComment"])
+    @aws_subscribe(mutations: ["createComment"])
 }
 ```
 
@@ -583,26 +625,32 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type User 
-  @model 
-  @auth(rules: [
-    { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]) {
+type User
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "id", operations: [create, update, delete] }
+    ]
+  ) {
   id: ID!
   username: String!
   posts: [Post] @connection
-    createdAt: String
-    updatedAt: String
+  createdAt: String
+  updatedAt: String
 }
 
-type Post @model @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
+type Post
+  @model
+  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
   id: ID!
   postImage: S3Object!
   comments: [Comment] @connection
   likes: Int
 }
 
-type Comment @model @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
+type Comment
+  @model
+  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
   id: ID!
   text: String!
   author: String!
@@ -610,9 +658,13 @@ type Comment @model @auth(rules: [{allow: owner, operations: [create, update, de
   post: Post @connection
 }
 
-type Like @model
-  @key(name: "byUser", fields: ["createdBy", "createdAt"], queryField: "likesByUser")
-  {
+type Like
+  @model
+  @key(
+    name: "byUser"
+    fields: ["createdBy", "createdAt"]
+    queryField: "likesByUser"
+  ) {
   id: ID!
   postId: ID!
   createdBy: ID!
@@ -620,10 +672,16 @@ type Like @model
   liked: Boolean
 }
 
-type Following @model @key(name: "followerId", fields: ["followerId", "createdAt"], queryField: "listFollowing") {
-    id: ID
-    followerId: ID!
-    followingId: ID!
+type Following
+  @model
+  @key(
+    name: "followerId"
+    fields: ["followerId", "createdAt"]
+    queryField: "listFollowing"
+  ) {
+  id: ID
+  followerId: ID!
+  followingId: ID!
   createdAt: String!
 }
 
@@ -708,12 +766,11 @@ exports.handler = (event, _, callback) => {
     .then(response => callback(null, response.data.data))
     .catch(err => callback(err));
 };
-
 ```
 
 7. Login to [Giphy's Developer portal](https://developers.giphy.com/dashboard/) and create an app to get an API Key.
-   
-8. Back in the function's `src` directory, create a `.env` file and add in the API Key that was obtained in the previous step as a secret. 
+
+8. Back in the function's `src` directory, create a `.env` file and add in the API Key that was obtained in the previous step as a secret.
 
 ```sh
 GIPHY_API_KEY=<YOUR_API_KEY>
@@ -721,7 +778,13 @@ GIPHY_API_KEY=<YOUR_API_KEY>
 
 **Your .env file should NOT be committed to Github**
 
-9. Add the GraphQL API
+9. Head back to the root of your project
+
+```sh
+cd ../../../../../
+```
+
+10. Add the GraphQL API
 
 ```sh
 amplify add api
@@ -751,10 +814,9 @@ type Query {
   getGifs(searchTerm: String, limit: Int): [Gif]
     @function(name: "giphyfunction-${env}")
 }
-
 ```
 
-10. Deploy the Resources
+11. Deploy the Resources
 
 ```sh
 amplify push
