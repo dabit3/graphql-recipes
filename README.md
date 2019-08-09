@@ -15,7 +15,7 @@ To learn more about building full stack serverless applications with GraphQL and
 5. [WhatsApp Clone](https://github.com/dabit3/graphql-recipes#user-content-whatsapp-clone)
 6. [Reddit Clone](https://github.com/dabit3/graphql-recipes#user-content-reddit-clone)
 7. [Conference App](https://github.com/dabit3/graphql-recipes#user-content-conference-app)
-8. [Instagram Clone]()
+8. [Instagram Clone](https://github.com/dabit3/graphql-recipes#instagram-clone)
 
 ## Todo App
 
