@@ -594,7 +594,7 @@ type User
     updatedAt: String
 }
 
-type Post @model @auth(rules: [{allow: owner, operations: [create, update, delete], operations: [create, update, delete]}]) {
+type Post @model @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
   id: ID!
   postImage: S3Object!
   comments: [Comment] @connection
