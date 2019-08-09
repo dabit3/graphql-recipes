@@ -713,7 +713,7 @@ exports.handler = (event, _, callback) => {
 
 7. Login to [Giphy's Developer portal](https://developers.giphy.com/dashboard/) and create an app to get an API Key.
    
-8. Back in the functions `src` directory, create a `.env` file and add in your API Key as a secret. 
+8. Back in the function's `src` directory, create a `.env` file and add in the API Key that was obtained in the previous step as a secret. 
 
 ```sh
 GIPHY_API_KEY=<YOUR_API_KEY>
@@ -733,7 +733,6 @@ Use the following GraphQL Schema:
 type Gif {
   id: ID!
   slug: String!
-  description: String!
   images: GifImage!
 }
 
