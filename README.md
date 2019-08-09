@@ -414,7 +414,10 @@ type User
 	updatedAt: String
 }
 
-type Post @model {
+type Post @model 
+  @auth(rules: [
+    { allow: owner, ownerField: "id", operations: [create, update, delete] }
+  ]){
   id: ID!
   postContent: String
   postImage: S3Object
@@ -518,7 +521,9 @@ type Talk @model
   comments: [Comment] @connection(name: "TalkComments")
 }
 
-type Comment @model {
+type Comment @model
+  @auth(rules: [{allow: owner, operations: [create, update, delete]}])
+  {
   id: ID!
   talkId: ID
   talk: Talk @connection(sortField: "createdAt", name: "TalkComments", keyField: "talkId")
@@ -528,7 +533,12 @@ type Comment @model {
   deviceId: ID
 }
 
-type Report @model {
+type Report @model
+  @auth(rules: [
+    {allow: owner, operations: [create, update, delete]},
+    {allow: admin}
+    ])
+  {
   id: ID!
   commentId: ID!
   comment: String!
