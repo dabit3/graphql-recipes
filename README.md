@@ -284,7 +284,7 @@ Use the following GraphQL schema:
 type User 
   @model 
   @auth(rules: [
-    { allow: owner, ownerField: "id", queries: null }
+    { allow: owner, ownerField: "id", operations: [create, update, delete] }
     ]) {
   id: ID!
   username: String!
