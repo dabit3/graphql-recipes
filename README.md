@@ -8,6 +8,14 @@ To learn more about GraphQL Transform library, check out [the documentation](htt
 
 To learn more about building full stack serverless applications with GraphQL and AWS Amplify, check out my post [Infrastructure as Code in the Era of GraphQL and Full Stack Serverless](https://dev.to/dabit3/infrastructure-as-code-in-the-era-of-graphql-and-full-stack-serverless-11bc).
 
+1. [Todo App](https://github.com/dabit3/graphql-recipes#user-content-todo-app)
+2. [Events App](https://github.com/dabit3/graphql-recipes#user-content-event-app)
+3. [Chat App](https://github.com/dabit3/graphql-recipes#user-content-chat-app)
+4. [E Commerce App](https://github.com/dabit3/graphql-recipes#user-content-e-commerce-app)
+5. [WhatsApp Clone](https://github.com/dabit3/graphql-recipes#user-content-whatsapp-clone)
+6. [Reddit Clone](https://github.com/dabit3/graphql-recipes#user-content-reddit-clone)
+7. [Conference App](https://github.com/dabit3/graphql-recipes#user-content-conference-app)
+
 ## Todo App
 
 To deploy this app, use the following steps:
