@@ -458,7 +458,6 @@ type Comment
     rules: [
       {
         allow: owner
-        operations: [create]
         operations: [create, update, delete]
       }
     ]
