@@ -18,6 +18,8 @@ To learn more about building full stack serverless applications with GraphQL and
 8. [Instagram Clone](https://github.com/dabit3/graphql-recipes#instagram-clone)
 9. [Giphy Clone](https://github.com/dabit3/graphql-recipes#giphy-clone)
 
+> Some applications may require additional custom authorization logic for certain subscriptions that you may not want accessible to all users. To learn more, check out the documentation [here](https://docs.aws.amazon.com/appsync/latest/devguide/security-authorization-use-cases.html).
+
 ## Todo App
 
 To deploy this app, use the following steps:
@@ -226,7 +228,7 @@ Use the following GraphQL schema:
 # Products - Orders - Customers
 
 type Customer
-  @model
+  @model(subscriptions: null)
   @auth(rules: [{ allow: owner }, { allow: groups, groups: ["Admin"] }]) {
   id: ID!
   name: String!
