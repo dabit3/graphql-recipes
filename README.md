@@ -589,7 +589,7 @@ type Report
   @auth(
     rules: [
       { allow: owner, operations: [create, update, delete] }
-      { allow: admin }
+      { allow: groups, groups: ["Admin"] }
     ]
   ) {
   id: ID!
