@@ -142,7 +142,7 @@ type User
   id: ID!
   username: String!
   conversations: [ConvoLink] @connection(name: "UserLinks")
-  messages: [Message] @connection(name: "UserMessages")
+  messages: [Message] @connection(name: "UserMessages", keyField: "authorId")
   createdAt: String
   updatedAt: String
 }
@@ -322,7 +322,7 @@ type User
   username: String!
   avatar: S3Object
   conversations: [ConvoLink] @connection(name: "UserLinks")
-  messages: [Message] @connection(name: "UserMessages")
+  messages: [Message] @connection(name: "UserMessages", keyField: "authorId")
   createdAt: String
   updatedAt: String
 }
@@ -564,7 +564,7 @@ type Talk
   twitter: String
   github: String
   speakerAvatar: String
-  comments: [Comment] @connection(name: "TalkComments")
+  comments: [Comment] @connection(name: "TalkComments", keyField: "authorId")
 }
 
 type Comment
@@ -572,12 +572,7 @@ type Comment
   @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
   id: ID!
   talkId: ID
-  talk: Talk
-    @connection(
-      sortField: "createdAt"
-      name: "TalkComments"
-      keyField: "talkId"
-    )
+  talk: Talk @connection(sortField: "createdAt", name: "TalkComments", keyField: "talkId")
   message: String
   createdAt: String
   createdBy: String
