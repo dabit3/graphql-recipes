@@ -10,15 +10,16 @@ To learn more about GraphQL Transform library, check out [the documentation](htt
 
 To learn more about building full stack serverless applications with GraphQL and AWS Amplify, check out my post [Infrastructure as Code in the Era of GraphQL and Full Stack Serverless](https://dev.to/dabit3/infrastructure-as-code-in-the-era-of-graphql-and-full-stack-serverless-11bc).
 
-1. [Todo App](https://github.com/dabit3/graphql-recipes#user-content-todo-app)
-2. [Events App](https://github.com/dabit3/graphql-recipes#user-content-event-app)
-3. [Chat App](https://github.com/dabit3/graphql-recipes#user-content-chat-app)
-4. [E Commerce App](https://github.com/dabit3/graphql-recipes#user-content-e-commerce-app)
-5. [WhatsApp Clone](https://github.com/dabit3/graphql-recipes#user-content-whatsapp-clone)
-6. [Reddit Clone](https://github.com/dabit3/graphql-recipes#user-content-reddit-clone)
-7. [Conference App](https://github.com/dabit3/graphql-recipes#user-content-conference-app)
-8. [Instagram Clone](https://github.com/dabit3/graphql-recipes#instagram-clone)
-9. [Giphy Clone](https://github.com/dabit3/graphql-recipes#giphy-clone)
+1. [Todo App](#todo-app)
+2. [Events App](#event-app)
+3. [Chat App](#chat-app)
+3. [Multi-user Chat App](#multiuser-chat-app)
+4. [E Commerce App](#e-commerce-app)
+5. [WhatsApp Clone](#whatsapp-clone)
+6. [Reddit Clone](#reddit-clone)
+7. [Conference App](#conference-app)
+8. [Instagram Clone](#instagram-clone)
+9. [Giphy Clone](#giphy-clone)
 
 > Some applications may require additional custom authorization logic for certain subscriptions that you may not want accessible to all users. To learn more, check out the documentation [here](https://docs.aws.amazon.com/appsync/latest/devguide/security-authorization-use-cases.html).
 
@@ -79,23 +80,31 @@ amplify add api
 Use the following schema
 
 ```graphql
-type Event
-  @model
-  @key(
-    name: "queryName"
-    fields: ["queryName", "time"]
-    queryField: "eventsByDate"
-  )
-  @auth(
-    rules: [
-      { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
-    ]
-  ) {
+type Event @model
+  @key(name: "itemType", fields: ["itemType", "time"], queryField: "eventsByDate")
+  @auth(rules: [
+    { allow: groups, groups: ["Admin"] },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
+    id: ID!
+    name: String!
+    description: String
+    time: String!
+    itemType: String!
+    comments: [Comment] @connection #optional comments field
+}
+
+# Optional Comment type
+type Comment @model
+  @auth(rules: [
+    { allow: owner, ownerField: "author" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
-  name: String!
-  description: String
-  time: String!
-  queryName: String!
+  message: String!
+  author: String
 }
 ```
 
@@ -105,9 +114,45 @@ type Event
 amplify push
 ```
 
-## Chat App
+## Chat app
 
-> Click [here](https://github.com/aws-samples/aws-appsync-chat) to view AWS AppSync Chat, a completed full-stack version of this app built with React.
+To deploy this app, use the following steps:
+
+1. Create the Amplify project in your app
+
+```sh
+amplify init
+```
+
+2. Add the GraphQL API
+
+```sh
+amplify add api
+```
+
+Use the following GraphQL Schema:
+
+```graphql
+type Conversation @model {
+  id: ID!
+  name: String
+  messages: [Message] @connection(keyName: "messagesByConversationId", fields: ["id"])
+  createdAt: String
+  updatedAt: String
+}
+
+type Message
+  @key(name: "messagesByConversationId", fields: ["conversationId"])
+  @model(subscriptions: null, queries: null) {
+  id: ID!
+  conversationId: ID!
+  content: String!
+  conversation: Conversation @connection(fields: ["conversationId"])
+  createdAt: String
+}
+```
+
+## Multi-user Chat App
 
 To deploy this app, use the following steps:
 
@@ -133,16 +178,14 @@ Use the following GraphQL Schema:
 
 ```graphql
 type User
-  @model
-  @auth(
-    rules: [
-      { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]
-  ) {
-  id: ID!
-  username: String!
-  conversations: [ConvoLink] @connection(name: "UserLinks")
-  messages: [Message] @connection(name: "UserMessages", keyField: "authorId")
+  @key(fields: ["userId"])
+  @model(subscriptions: null)
+  @auth(rules: [
+    { allow: owner, ownerField: "userId" }
+  ]) {
+  userId: ID!
+  conversations: [ConvoLink] @connection(keyName: "conversationsByUserId", fields: ["userId"])
+  messages: [Message] @connection(keyName: "messagesByUserId", fields: ["userId"])
   createdAt: String
   updatedAt: String
 }
@@ -151,47 +194,48 @@ type Conversation
   @model(subscriptions: null)
   @auth(rules: [{ allow: owner, ownerField: "members" }]) {
   id: ID!
-  messages: [Message] @connection(name: "ConvoMsgs", sortField: "createdAt")
-  associated: [ConvoLink] @connection(name: "AssociatedLinks")
-  name: String!
+  messages: [Message] @connection(keyName: "messagesByConversationId", fields: ["id"])
+  associated: [ConvoLink] @connection(keyName: "convoLinksByConversationId", fields: ["id"])
   members: [String!]!
   createdAt: String
   updatedAt: String
 }
 
 type Message
-  @model(subscriptions: null, queries: null)
-  @auth(rules: [{ allow: owner, ownerField: "authorId" }]) {
+  @key(name: "messagesByConversationId", fields: ["conversationId"])
+  @key(name: "messagesByUserId", fields: ["userId"])
+  @model(subscriptions: null, queries: null) {
   id: ID!
-  author: User @connection(name: "UserMessages", keyField: "authorId")
-  authorId: String
+  userId: ID!
+  conversationId: ID!
+  author: User @connection(fields: ["userId"])
   content: String!
-  conversation: Conversation!
-    @connection(name: "ConvoMsgs", sortField: "createdAt")
-  messageConversationId: ID!
+  conversation: Conversation @connection(fields: ["conversationId"])
   createdAt: String
   updatedAt: String
 }
 
 type ConvoLink
+  @key(name: "convoLinksByConversationId", fields: ["conversationId"])
+  @key(name: "conversationsByUserId", fields: ["userId"])
   @model(
     mutations: { create: "createConvoLink", update: "updateConvoLink" }
     queries: null
     subscriptions: null
   ) {
   id: ID!
-  user: User! @connection(name: "UserLinks")
-  convoLinkUserId: ID
-  conversation: Conversation! @connection(name: "AssociatedLinks")
-  convoLinkConversationId: ID!
+  userId: ID!
+  conversationId: ID!
+  user: User @connection(fields: ["userId"])
+  conversation: Conversation @connection(fields: ["conversationId"])
   createdAt: String
   updatedAt: String
 }
 
 type Subscription {
-  onCreateConvoLink(convoLinkUserId: ID!): ConvoLink
+  onCreateConvoLink(userId: ID): ConvoLink
     @aws_subscribe(mutations: ["createConvoLink"])
-  onCreateMessage(messageConversationId: ID!): Message
+  onCreateMessage(conversationId: ID): Message
     @aws_subscribe(mutations: ["createMessage"])
 }
 ```
@@ -229,42 +273,62 @@ Use the following GraphQL schema:
 ```graphql
 # Products - Orders - Customers
 
-type Customer
-  @model(subscriptions: null)
-  @auth(rules: [{ allow: owner }, { allow: groups, groups: ["Admin"] }]) {
+type Customer @model(subscriptions: null)
+  @auth(rules: [
+    { allow: owner },
+    { allow: groups, groups: ["Admin"] }
+  ]) {
   id: ID!
   name: String!
   email: String!
   address: String
+  orders: [Order] @connection(keyName: "byCustomerId", fields: ["id"])
 }
 
-type Product
-  @model
-  @auth(
-    rules: [
-      { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
-    ]
-  ) {
+type Product @model(subscriptions: null)
+  @auth(rules: [
+    { allow: groups, groups: ["Admin"] },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
   name: String!
   description: String
   price: Float!
-  image: S3Object
+  image: String
 }
 
-type S3Object {
-  bucket: String!
-  region: String!
-  key: String!
-}
-
-type Order
-  @model
-  @auth(rules: [{ allow: owner }, { allow: groups, groups: ["Admin"] }]) {
+type Order @model(subscriptions: null)
+  @key(name: "byCustomerId", fields: ["customerId", "createdAt"], queryField: "ordersByCustomerId")
+  @auth(rules: [
+   { allow: owner },
+   { allow: groups, groups: ["Admin"] }
+  ]) {
   id: ID!
-  customer: Customer @connection
-  total: Float!
-  order: String
+  customerId: ID!
+  total: Float
+  subtotal: Float
+  tax: Float
+  createdAt: String!
+  customer: Customer @connection(fields: ["customerId"])
+  lineItems: [LineItem] @connection(keyName: "byOrderId", fields: ["id"])
+}
+
+type LineItem @model(subscriptions: null)
+  @key(name: "byOrderId", fields: ["orderId"])
+  @auth(rules: [
+   { allow: owner },
+   { allow: groups, groups: ["Admin"] }
+  ]) {
+  id: ID!
+  orderId: ID!
+  productId: ID!
+  qty: Int
+  order: Order @connection(fields: ["orderId"])
+  product: Product @connection(fields: ["productId"])
+  description: String
+  price: Float
+  total: Float
 }
 ```
 
@@ -312,17 +376,15 @@ Use the following GraphQL schema:
 
 ```graphql
 type User
-  @model
-  @auth(
-    rules: [
-      { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]
-  ) {
-  id: ID!
-  username: String!
-  avatar: S3Object
-  conversations: [ConvoLink] @connection(name: "UserLinks")
-  messages: [Message] @connection(name: "UserMessages", keyField: "authorId")
+  @key(fields: ["userId"])
+  @model(subscriptions: null)
+  @auth(rules: [
+    { allow: owner, ownerField: "userId" }
+  ]) {
+  userId: ID!
+  avatar: String
+  conversations: [ConvoLink] @connection(keyName: "conversationsByUserId", fields: ["userId"])
+  messages: [Message] @connection(keyName: "messagesByUserId", fields: ["userId"])
   createdAt: String
   updatedAt: String
 }
@@ -331,55 +393,50 @@ type Conversation
   @model(subscriptions: null)
   @auth(rules: [{ allow: owner, ownerField: "members" }]) {
   id: ID!
-  messages: [Message] @connection(name: "ConvoMsgs", sortField: "createdAt")
-  associated: [ConvoLink] @connection(name: "AssociatedLinks")
-  name: String!
+  messages: [Message] @connection(keyName: "messagesByConversationId", fields: ["id"])
+  associated: [ConvoLink] @connection(keyName: "convoLinksByConversationId", fields: ["id"])
   members: [String!]!
   createdAt: String
   updatedAt: String
 }
 
 type Message
-  @model(subscriptions: null, queries: null)
-  @auth(rules: [{ allow: owner, ownerField: "authorId" }]) {
+  @key(name: "messagesByConversationId", fields: ["conversationId"])
+  @key(name: "messagesByUserId", fields: ["userId"])
+  @model(subscriptions: null, queries: null) {
   id: ID!
-  author: User @connection(name: "UserMessages", keyField: "authorId")
-  authorId: String
+  userId: ID!
+  conversationId: ID!
+  author: User @connection(fields: ["userId"])
   content: String!
-  image: S3Object
-  conversation: Conversation!
-    @connection(name: "ConvoMsgs", sortField: "createdAt")
-  messageConversationId: ID!
+  image: String
+  conversation: Conversation @connection(fields: ["conversationId"])
   createdAt: String
   updatedAt: String
 }
 
 type ConvoLink
+  @key(name: "convoLinksByConversationId", fields: ["conversationId"])
+  @key(name: "conversationsByUserId", fields: ["userId"])
   @model(
     mutations: { create: "createConvoLink", update: "updateConvoLink" }
     queries: null
     subscriptions: null
   ) {
   id: ID!
-  user: User! @connection(name: "UserLinks")
-  convoLinkUserId: ID
-  conversation: Conversation! @connection(name: "AssociatedLinks")
-  convoLinkConversationId: ID!
+  userId: ID!
+  conversationId: ID!
+  user: User @connection(fields: ["userId"])
+  conversation: Conversation @connection(fields: ["conversationId"])
   createdAt: String
   updatedAt: String
 }
 
 type Subscription {
-  onCreateConvoLink(convoLinkUserId: ID!): ConvoLink
+  onCreateConvoLink(userId: ID): ConvoLink
     @aws_subscribe(mutations: ["createConvoLink"])
-  onCreateMessage(messageConversationId: ID!): Message
+  onCreateMessage(conversationId: ID): Message
     @aws_subscribe(mutations: ["createMessage"])
-}
-
-type S3Object {
-  bucket: String!
-  region: String!
-  key: String!
 }
 ```
 
@@ -426,69 +483,80 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type User
-  @model
-  @auth(
-    rules: [
-      { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]
-  ) {
-  id: ID!
-  username: String!
-  posts: [Post] @connection
+type User @model(subscriptions: null)
+  @key(fields: ["userId"])
+  @auth(rules: [
+    { allow: owner, ownerField: "userId" }
+  ]) {
+  userId: ID!
+  posts: [Post] @connection(keyName: "postByUser", fields: ["userId"])
   createdAt: String
   updatedAt: String
 }
 
-type Post
-  @model
-  @auth(
-    rules: [
-      { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]
-  ) {
+type Post @model
+  @key(name: "postByUser", fields: ["authorId", "createdAt"])
+  @auth(rules: [
+    { allow: owner, ownerField: "authorId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
+  authorId: ID!
+  author: User @connection(fields: ["authorId"])
   postContent: String
-  postImage: S3Object
-  comments: [Comment] @connection
-  votes: Int
+  postImage: String
+  comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
+  votes: [PostVote] @connection(keyName: "votesByPostId", fields: ["id"])
+  createdAt: String
+  voteCount: Int
 }
 
-type Comment
-  @model
-  @auth(
-    rules: [
-      {
-        allow: owner
-        operations: [create, update, delete]
-      }
-    ]
-  ) {
+type Comment @model
+  @key(name: "commentsByPostId", fields: ["postId"])
+  @auth(rules: [
+    { allow: owner, ownerField: "authorId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
+  authorId: ID!
+  postId: ID!
   text: String!
-  author: String!
-  votes: Int
-  post: Post @connection
+  author: User @connection(fields: ["authorId"])
+  votes: [CommentVote] @connection(keyName: "votesByCommentId", fields: ["id"])
+  post: Post @connection(fields: ["postId"])
+  voteCount: Int
 }
 
-type Vote
-  @model
-  @key(
-    name: "byUser"
-    fields: ["createdBy", "createdAt"]
-    queryField: "votesByUser"
-  ) {
+type PostVote @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId"},
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ])
+  @key(name: "votesByPostId", fields: ["postId"]) {
   id: ID!
   postId: ID!
-  createdBy: ID!
+  userId: ID!
+  post: Post @connection(fields: ["postId"])
   createdAt: String!
   vote: VoteType
 }
 
-type S3Object {
-  bucket: String!
-  region: String!
-  key: String!
+type CommentVote @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId"},
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ])
+  @key(name: "votesByCommentId", fields: ["commentId"]) {
+  id: ID!
+  userId: ID!
+  commentId: ID!
+  comment: Comment @connection(fields: ["commentId"])
+  createdAt: String!
+  vote: VoteType
 }
 
 input VoteInput {
@@ -500,6 +568,24 @@ enum VoteType {
   up
   down
 }
+```
+
+#### Custom resolver for votes
+
+In the request mapping template,
+
+```
+# Set the vote ID as a combination of the postId and the user's userId.
+#set($itemId = "$context.identity.username#$context.args.postId")
+$util.qr($context.args.input.put("id", $util.defaultIfNull($ctx.args.input.id, $itemId)))
+
+# delete or comment out the conditional expression code that does not allow the vote to be overridden:
+#set( $condition = {
+  "expression": "attribute_not_exists(#id)",
+  "expressionNames": {
+      "#id": "id"
+  }
+})
 ```
 
 4. Add Storage (S3)
@@ -545,13 +631,12 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type Talk
-  @model
-  @auth(
-    rules: [
-      { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
-    ]
-  ) {
+type Talk @model
+  @auth(rules: [
+    { allow: groups, groups: ["Admin"] },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
   name: String!
   speakerName: String!
@@ -564,29 +649,32 @@ type Talk
   twitter: String
   github: String
   speakerAvatar: String
-  comments: [Comment] @connection(name: "TalkComments", keyField: "authorId")
+  comments: [Comment] @connection(keyName: "commentsByTalkId", fields: ["id"])
 }
 
-type Comment
-  @model
-  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
+type Comment @model
+  @key(name: "commentsByTalkId", fields: ["talkId"])
+  @auth(rules: [
+    { allow: owner, ownerField: "authorId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ])
+{
   id: ID!
-  talkId: ID
-  talk: Talk @connection(sortField: "createdAt", name: "TalkComments", keyField: "talkId")
+  talkId: ID!
+  talk: Talk @connection(fields: ["talkId"])
   message: String
   createdAt: String
-  createdBy: String
+  authorId: ID!
   deviceId: ID
 }
 
-type Report
-  @model
-  @auth(
-    rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: groups, groups: ["Admin"] }
-    ]
-  ) {
+type Report @model
+  @auth(rules: [
+    { allow: owner, operations: [create, update, delete] },
+    { allow: groups, groups: ["Admin"] }
+  ])
+  {
   id: ID!
   commentId: ID!
   comment: String!
@@ -605,7 +693,7 @@ type Query {
 
 type Subscription {
   onCreateCommentWithId(talkId: ID!): Comment
-    @aws_subscribe(mutations: ["createComment"])
+        @aws_subscribe(mutations: ["createComment"])
 }
 ```
 
@@ -640,70 +728,97 @@ amplify add api
 Use the following GraphQL Schema:
 
 ```graphql
-type User
-  @model
-  @auth(
-    rules: [
-      { allow: owner, ownerField: "id", operations: [create, update, delete] }
-    ]
-  ) {
-  id: ID!
-  username: String!
-  posts: [Post] @connection
+type User @model(subscriptions: null)
+  @key(fields: ["userId"])
+  @auth(rules: [
+    { allow: owner, ownerField: "userId" },
+    { allow: private, operations: [read] }
+    ]) {
+  userId: ID!
+  posts: [Post] @connection(keyName: "postsByUserId", fields: ["userId"])
   createdAt: String
   updatedAt: String
+  following: [Following] @connection(keyName: "followingByUserId", fields: ["userId"])
 }
 
-type Post
-  @model
-  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
+type Post @model
+  @key(name: "postsByUserId", fields: ["authorId"])
+  @auth(rules: [
+    { allow: owner ownerField: "authorId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
-  postImage: S3Object!
-  comments: [Comment] @connection
-  likes: Int
+  authorId: ID!
+  content: String!
+  postImage: String
+  author: User @connection(fields: ["authorId"])
+  comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
+  likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])
 }
 
-type Comment
-  @model
-  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
-  id: ID!
-  text: String!
-  author: String!
-  likes: Int
-  post: Post @connection
-}
-
-type Like
-  @model
-  @key(
-    name: "byUser"
-    fields: ["createdBy", "createdAt"]
-    queryField: "likesByUser"
-  ) {
+type Comment @model
+  @key(name: "commentsByPostId", fields: ["postId"])
+  @auth(rules: [
+    { allow: owner, ownerField: "authorId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ]) {
   id: ID!
   postId: ID!
-  createdBy: ID!
-  createdAt: String!
-  liked: Boolean
+  authorId: ID!
+  text: String!
+  likes: [CommentLike] @connection(keyName: "commentLikesByCommentId", fields: ["id"])
+  author: User @connection(fields: ["authorId"])
+  post: Post @connection(fields: ["postId"])
 }
 
-type Following
-  @model
-  @key(
-    name: "followerId"
-    fields: ["followerId", "createdAt"]
-    queryField: "listFollowing"
-  ) {
+type PostLike @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ])
+  @key(name: "postLikesByPostId", fields: ["postId"])
+  @key(name: "postLikesByUser", fields: ["userId", "createdAt"], queryField: "likesByUser") {
+  id: ID!
+  postId: ID!
+  userId: ID!
+  user: User @connection(fields: ["userId"])
+  post: Post @connection(fields: ["postId"])
+  createdAt: String!
+}
+
+type CommentLike @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ])
+  @key(name: "commentLikesByCommentId", fields: ["commentId"])
+  @key(name: "commentLikesByUser", fields: ["userId", "createdAt"], queryField: "likesByUser") {
+  id: ID!
+  userId: ID!
+  postId: ID!
+  commentId: ID!
+  user: User @connection(fields: ["userId"])
+  post: Post @connection(fields: ["postId"])
+  createdAt: String!
+}
+
+type Following @model
+  @auth(rules: [
+    { allow: owner, ownerField: "followerId" },
+    { allow: public, operations: [read] },
+    { allow: private, operations: [read] }
+  ])
+  @key(name: "followingByUserId", fields: ["followerId"]) {
   id: ID
   followerId: ID!
   followingId: ID!
+  follower: User @connection(fields: ["followerId"])
+  following: User @connection(fields: ["followingId"])
   createdAt: String!
-}
-
-type S3Object {
-  bucket: String!
-  region: String!
-  key: String!
 }
 ```
 
