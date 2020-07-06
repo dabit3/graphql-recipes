@@ -340,8 +340,9 @@ amplify add storage
 ? Please select from one of the below mentioned services (Use arrow keys): Content (Images, audio, video, etc.)
 ? Please provide a friendly name for your resource that will be used to label this category in the project: imagestorage
 ? Please provide bucket name: <UNIQUE_BUCKET_NAME>
-? Who should have access: Auth users only
+? Who should have access: Auth and Guest users
 ? What kind of access do you want for Authenticated users? create/update, read, delete
+? What kind of access do you want for Guest users? read
 ```
 
 5. Deploy the resources
@@ -448,8 +449,9 @@ amplify add storage
 ? Please select from one of the below mentioned services (Use arrow keys): Content (Images, audio, video, etc.)
 ? Please provide a friendly name for your resource that will be used to label this category in the project: imagestorage
 ? Please provide bucket name: <UNIQUE_BUCKET_NAME>
-? Who should have access: Auth users only
+? Who should have access: Auth and Guest users
 ? What kind of access do you want for Authenticated users? create/update, read, delete
+? What kind of access do you want for Guest users? read
 ```
 
 5. Deploy the resources
@@ -596,8 +598,9 @@ amplify add storage
 ? Please select from one of the below mentioned services (Use arrow keys): Content (Images, audio, video, etc.)
 ? Please provide a friendly name for your resource that will be used to label this category in the project: imagestorage
 ? Please provide bucket name: <UNIQUE_BUCKET_NAME>
-? Who should have access: Auth users only
+? Who should have access: Auth and Guest users
 ? What kind of access do you want for Authenticated users? create/update, read, delete
+? What kind of access do you want for Guest users? read
 ```
 
 5. Deploy the resources
@@ -830,8 +833,9 @@ amplify add storage
 ? Please select from one of the below mentioned services (Use arrow keys): Content (Images, audio, video, etc.)
 ? Please provide a friendly name for your resource that will be used to label this category in the project: imagestorage
 ? Please provide bucket name: <UNIQUE_BUCKET_NAME>
-? Who should have access: Auth users only
+? Who should have access: Auth and Guest users
 ? What kind of access do you want for Authenticated users? create/update, read, delete
+? What kind of access do you want for Guest users? read
 ```
 
 5. Deploy the resources
